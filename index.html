@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>词块坠落</title>
+  <link rel="stylesheet" href="style.min.css?v=200">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ========== Screen: Menu ========== -->
+    <div id="screen-menu" class="screen active">
+      <div class="menu-card">
+        <div class="start-header">
+          <div class="start-logo">词块坠落</div>
+          <div class="start-sublogo">LexiDrop</div>
+        </div>
+        <p class="start-tagline">单词从顶部坠落，匹配底部中文释义，连成 3 个消除</p>
+        <div class="menu-actions">
+          <button class="btn btn-primary btn-lg menu-btn" data-action="go-free-words">自由模式</button>
+          <button class="btn btn-primary btn-lg menu-btn" data-action="go-levels">闯关模式</button>
+          <button class="btn btn-secondary btn-lg menu-btn" data-action="go-study-list">词库学习</button>
+          <button class="btn btn-secondary btn-lg menu-btn" data-action="go-tutorial">教学关卡</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Screen: Free Words ========== -->
+    <div id="screen-free-words" class="screen">
+      <div class="select-card">
+        <div class="select-header">
+          <button class="btn-back" data-action="go-menu">←</button>
+          <h2 class="select-title">自由模式 · 选择词数</h2>
+        </div>
+        <p class="select-hint">选择本局使用的单词数量，词会循环下落直到游戏结束</p>
+        <div class="option-grid">
+          <button class="option-card" data-action="go-free-difficulty" data-words="16">
+            <span class="option-num">16</span>
+            <span class="option-label">词</span>
+          </button>
+          <button class="option-card" data-action="go-free-difficulty" data-words="20">
+            <span class="option-num">20</span>
+            <span class="option-label">词</span>
+          </button>
+          <button class="option-card" data-action="go-free-difficulty" data-words="24">
+            <span class="option-num">24</span>
+            <span class="option-label">词</span>
+          </button>
+          <button class="option-card" data-action="go-free-difficulty" data-words="28">
+            <span class="option-num">28</span>
+            <span class="option-label">词</span>
+          </button>
+          <button class="option-card" data-action="go-free-difficulty" data-words="32">
+            <span class="option-num">32</span>
+            <span class="option-label">词</span>
+          </button>
+          <button class="option-card" data-action="go-free-difficulty" data-words="36">
+            <span class="option-num">36</span>
+            <span class="option-label">词</span>
+          </button>
+          <button class="option-card" data-action="go-free-difficulty" data-words="40">
+            <span class="option-num">40</span>
+            <span class="option-label">词</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Screen: Free Difficulty ========== -->
+    <!-- ========== Screen: Free Word Selection ========== -->
+    <div id="screen-free-wordselect" class="screen">
+      <div class="select-card">
+        <div class="select-header">
+          <button class="btn-back" data-action="go-free-words">←</button>
+          <h2 class="select-title">自由模式 · 选择单词</h2>
+        </div>
+        <p class="select-hint">点击单词可替换为同主题的其他词，每色词数一致</p>
+        <div id="wordselect-grid" class="ws-grid"></div>
+        <div class="ws-footer">
+          <span class="ws-mult-label">当前倍率 <span id="wordselect-mult">x1.0</span></span>
+          <button class="btn btn-primary" data-action="wordselect-confirm">确认选择</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Word swap overlay -->
+    <div id="wordselect-swap-overlay" class="overlay hidden">
+      <div class="overlay-card">
+        <h3 class="overlay-title" style="font-size:20px">选择单词</h3>
+        <div id="wordselect-swap-list" class="ws-swap-list"></div>
+        <button class="btn btn-secondary" data-action="wordselect-swap-close" style="margin-top:12px;width:100%">取消</button>
+      </div>
+    </div>
+
+    <div id="screen-free-difficulty" class="screen">
+      <div class="select-card">
+        <div class="select-header">
+          <button class="btn-back" data-action="go-menu">←</button>
+          <h2 class="select-title">自由模式 · 选择难度</h2>
+        </div>
+        <div class="diff-list">
+          <button class="diff-card diff-easy" data-action="start-game" data-difficulty="easy">
+            <span class="diff-name">简单</span>
+            <span class="diff-mult" id="free-mult-easy">x1.0</span>
+            <span class="diff-bestscore-label">最高分</span>
+            <span class="diff-bestscore" id="free-bestscore-easy">—</span>
+          </button>
+          <button class="diff-card diff-normal" data-action="start-game" data-difficulty="normal">
+            <span class="diff-name">普通</span>
+            <span class="diff-mult" id="free-mult-normal">x1.0</span>
+            <span class="diff-bestscore-label">最高分</span>
+            <span class="diff-bestscore" id="free-bestscore-normal">—</span>
+          </button>
+          <button class="diff-card diff-hard" data-action="start-game" data-difficulty="hard">
+            <span class="diff-name">困难</span>
+            <span class="diff-mult" id="free-mult-hard">x1.0</span>
+            <span class="diff-bestscore-label">最高分</span>
+            <span class="diff-bestscore" id="free-bestscore-hard">—</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Screen: Levels ========== -->
+    <div id="screen-levels" class="screen">
+      <div class="select-card">
+        <div class="select-header">
+          <button class="btn-back" data-action="go-menu">←</button>
+          <h2 class="select-title">闯关模式 · 选择关卡</h2>
+        </div>
+        <div class="level-list">
+          <div class="level-card unlocked" data-action="go-level-difficulty" data-level="A1" data-pack="0" data-level-id="1">
+            <span class="level-num">1</span>
+            <div class="level-info">
+              <span class="level-name">A1 第一关</span>
+              </div>
+            <span class="level-stars">☆☆☆</span>
+          </div>
+          <div class="level-card unlocked" data-action="go-level-difficulty" data-level="A1" data-pack="1" data-level-id="2">
+            <span class="level-num">2</span>
+            <div class="level-info">
+              <span class="level-name">A1 第二关</span>
+              </div>
+            <span class="level-stars">☆☆☆</span>
+          </div>
+          <div class="level-card unlocked" data-action="go-level-difficulty" data-level="A2" data-pack="0" data-level-id="3">
+            <span class="level-num">3</span>
+            <div class="level-info">
+              <span class="level-name">A2 第一关</span>
+              </div>
+            <span class="level-stars">☆☆☆</span>
+          </div>
+          <div class="level-card unlocked" data-action="go-level-difficulty" data-level="A2" data-pack="1" data-level-id="4">
+            <span class="level-num">4</span>
+            <div class="level-info">
+              <span class="level-name">A2 第二关</span>
+              </div>
+            <span class="level-stars">☆☆☆</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Screen: Level Difficulty ========== -->
+    <div id="screen-level-difficulty" class="screen">
+      <div class="select-card">
+        <div class="select-header">
+          <button class="btn-back" data-action="go-levels">←</button>
+          <h2 class="select-title" id="level-diff-title">第 1 关 · 选择难度</h2>
+        </div>
+        <div class="diff-list">
+          <button class="diff-card diff-easy" data-action="start-game" data-difficulty="easy">
+            <span class="diff-name">简单</span>
+            <span class="diff-stars" id="level-stars-easy">☆☆☆</span>
+          </button>
+          <button class="diff-card diff-normal" data-action="start-game" data-difficulty="normal">
+            <span class="diff-name">普通</span>
+            <span class="diff-stars" id="level-stars-normal">☆☆☆</span>
+          </button>
+          <button class="diff-card diff-hard" data-action="start-game" data-difficulty="hard">
+            <span class="diff-name">困难</span>
+            <span class="diff-stars" id="level-stars-hard">☆☆☆</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Screen: Study List ========== -->
+    <div id="screen-study-list" class="screen">
+      <div class="select-card">
+        <div class="select-header">
+          <button class="btn-back" data-action="go-menu">←</button>
+          <h2 class="select-title">词库学习</h2>
+        </div>
+        <div class="study-list" id="study-list-content">
+          <!-- Dynamic content rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Screen: Study Detail ========== -->
+    <div id="screen-study-detail" class="screen">
+      <div class="study-detail-container">
+        <div class="select-header">
+          <button class="btn-back" data-action="go-study-list">←</button>
+          <h2 class="select-title" id="study-detail-title">词包学习</h2>
+        </div>
+        <div class="study-progress" id="study-progress">1 / 16</div>
+        <div class="flashcard-wrapper" id="flashcard-wrapper">
+          <div class="flashcard" id="flashcard">
+            <div class="flashcard-front">
+              <div class="flashcard-theme" id="fc-theme-color"></div>
+              <div class="flashcard-word" id="fc-word">word</div>
+              <div class="flashcard-pos" id="fc-pos">Adj</div>
+              <div class="flashcard-hint">点击翻面看中文</div>
+            </div>
+            <div class="flashcard-back">
+              <div class="flashcard-theme" id="fc-theme-color-back"></div>
+              <div class="flashcard-zh" id="fc-zh">中文释义</div>
+              <div class="flashcard-theme-name" id="fc-theme-name"></div>
+            </div>
+          </div>
+        </div>
+        <div class="study-nav">
+          <button class="btn btn-icon" data-action="study-prev" id="btn-study-prev">
+            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="btn btn-study-known" data-action="study-mark" id="btn-study-mark">知道了</button>
+          <button class="btn btn-icon" data-action="study-next" id="btn-study-next">
+            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="study-dots" id="study-dots"></div>
+      </div>
+    </div>
+
+    <!-- ========== Screen: Game ========== -->
+    <div id="screen-game" class="screen">
+
+      <!-- Status Bar -->
+      <header id="status-bar">
+        <div class="stat-item">
+          <span class="stat-label">SCORE</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">STONE</span>
+          <span class="stat-value" id="stones">0<span class="stat-sub">/12</span></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">SHUFFLE</span>
+          <span class="stat-value" id="shuffles" style="color:#FFD54F">3</span>
+        </div>
+        <div class="stat-item stat-next">
+          <span class="stat-label">NEXT</span>
+          <span class="stat-value" id="next-word">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">剩余</span>
+          <span class="stat-value" id="remaining">0</span>
+        </div>
+      </header>
+
+      <!-- Game Area -->
+      <main id="game-area">
+
+        <!-- Board + Bottom Slots -->
+        <div id="board-column">
+          <div id="board-wrapper">
+            <div id="board"></div>
+            <div id="falling-block" class="hidden"></div>
+            <div id="swap-mode-banner" class="hidden">
+              <span>SWAP MODE — 点击两个相邻方块交换</span>
+            </div>
+          </div>
+          <div id="bottom-slots"></div>
+        </div>
+
+        <!-- Controls -->
+        <aside id="controls">
+          <div class="ctrl-row">
+            <button class="btn btn-icon" data-action="left" aria-label="左移">
+              <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="btn btn-icon" data-action="down" aria-label="下落">
+              <svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="btn btn-icon" data-action="right" aria-label="右移">
+              <svg viewBox="0 0 24 24" width="22" height="22"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="btn btn-action" data-action="drop">快速落下</button>
+          </div>
+          <div class="ctrl-row">
+            <button class="btn btn-swap" data-action="use-swap" id="btn-use-swap">
+              <span class="btn-swap-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span>SWAP <span id="swap-count-display">1</span></span>
+            </button>
+            <button class="btn btn-timestop" data-action="use-timestop" id="btn-use-timestop">
+              <span class="btn-swap-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span>时停 <span id="timestop-count-display">0</span></span>
+            </button>
+            <button class="btn btn-pause" data-action="pause" id="btn-pause">暂停</button>
+            <button class="btn btn-quit" data-action="quit" id="btn-quit">退出</button>
+          </div>
+          <div class="ctrl-hint">
+            <span>← → 移动 · ↓ 加速 · Space 快落 · 拖动释义换位 · S Swap · T 时停 · P 暂停</span>
+          </div>
+        </aside>
+      </main>
+
+    </div>
+
+    <!-- ========== Screen: Result ========== -->
+    <div id="screen-result" class="screen">
+      <div class="overlay-card overlay-card-lg">
+        <h2 class="overlay-title" id="game-over-title">游戏结束</h2>
+
+        <div class="star-display" id="star-display">
+          <span class="star">☆</span>
+          <span class="star">☆</span>
+          <span class="star">☆</span>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-item">
+            <span class="result-label">最终得分</span>
+            <span class="result-value" id="final-score">0</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">最高连击</span>
+            <span class="result-value" id="final-combo">0</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">掌握单词</span>
+            <span class="result-value" id="final-mastered">0</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">最高记录</span>
+            <span class="result-value" id="final-highscore">0</span>
+          </div>
+        </div>
+
+        <div class="score-breakdown" id="score-breakdown"></div>
+
+        <div class="wrong-section">
+          <h3 class="wrong-title">错词复盘 <span id="wrong-count">(0)</span></h3>
+          <div id="wrong-words-list" class="wrong-words-list"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" data-action="restart">重新开始</button>
+          <button class="btn btn-secondary" data-action="practice-wrong" id="btn-practice-wrong">再练错词</button>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-danger" data-action="go-levels-from-result" style="display:none">返回选关</button>
+          <button class="btn btn-danger" data-action="go-menu">返回菜单</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Floating Effects ========== -->
+    <div id="combo-display"></div>
+    <div id="particles-layer"></div>
+    <div id="flash-layer"></div>
+
+    <!-- ========== Pause Overlay ========== -->
+    <div id="pause-overlay" class="overlay hidden">
+      <div class="overlay-card">
+        <h2 class="overlay-title">已暂停</h2>
+        <p class="overlay-sub">按 P 或点击下方按钮继续</p>
+        <div class="modal-actions">
+          <button class="btn btn-primary" data-action="resume">继续游戏</button>
+          <button class="btn btn-danger" data-action="quit">退出游戏</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Alert Overlay (locked levels etc.) ========== -->
+    <div id="alert-overlay" class="overlay hidden">
+      <div class="overlay-card">
+        <h2 class="overlay-title" id="alert-title">提示</h2>
+        <p class="overlay-sub" id="alert-msg"></p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-action="alert-dismiss">关闭</button>
+          <button class="btn btn-primary" id="alert-action-btn" data-action="alert-dismiss">确定</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========== Screen: Tutorial List ========== -->
+    <div id="screen-tutorial" class="screen">
+      <div class="tutorial-list-card">
+        <h2 class="panel-title">教学关卡</h2>
+        <div class="tutorial-list" id="tutorial-list"></div>
+        <button class="btn btn-secondary" data-action="go-menu">返回菜单</button>
+      </div>
+    </div>
+
+    <!-- ========== Screen: Tutorial Learn ========== -->
+    <div id="screen-tutorial-learn" class="screen">
+      <div class="tutorial-learn-card">
+        <h2 class="panel-title">教学前先学单词</h2>
+        <p class="tutorial-learn-hint">先认识这3个单词，教学关卡中只会用到它们</p>
+        <div class="tutorial-words-list" id="tutorial-words-list"></div>
+        <div class="tutorial-learn-actions">
+          <button class="btn btn-secondary" data-action="tutorial-skip-learn">返回</button>
+          <button class="btn btn-primary" data-action="tutorial-start-after-learn">开始教学</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Tutorial Guide Overlay ========== -->
+    <div id="tutorial-overlay" class="tutorial-overlay hidden">
+      <div class="tutorial-bubble" id="tutorial-bubble">
+        <div class="tutorial-step-badge" id="tutorial-step-badge">1</div>
+        <div class="tutorial-text" id="tutorial-text"></div>
+        <button class="tutorial-skip-btn" data-action="tutorial-skip">跳过教学</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="game.min.js?v=200"></script>
+</body>
+</html>
